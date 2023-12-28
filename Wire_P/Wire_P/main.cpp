@@ -1,34 +1,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #pragma warning(disable:4996)
 #include <iostream>
-#include <gl/glew.h>
-#include <gl/freeglut.h>
-#include <gl/freeglut_ext.h>
-#include <gl/glm/glm.hpp>
-#include <gl/glm/ext.hpp>
-#include <gl/glm/gtc/matrix_transform.hpp>
+
 #include "stb_image.h"
-#define PI 3.141592 
+#include "object.h"
 
-float vertices[] = { //--- 버텍스 속성: 좌표값(FragPos), 노말값 (Normal)
--0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f,0.0f,		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,0.0f,0.0f,		 0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,0.0f,1.0f, //뒷면
-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,0.0f,1.0f,		-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,1.0f,1.0f,		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,1.0f,0.0f,
 
--0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,0.0f,0.0f,		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,1.0f,0.0f,		0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,1.0f,1.0f, //앞면
-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,	1.0f,1.0f,		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,0.0f,1.0f,		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,0.0f,0.0f,
+#define PI 3.141592
 
--0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,1.0f,1.0f,		 -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,0.0f,1.0f,	 -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,0.0f,0.0f, // 왼쪽면
--0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,0.0f,0.0f,	 -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,1.0f,0.0f,			 -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,1.0f,1.0f,
 
-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,0.0f,1.0f,			 0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,1.0f,1.0f,			0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,1.0f,0.0f, //오른쪽면
-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,1.0f,0.0f,    	0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,0.0f,		     0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,0.0f,1.0f,
-
--0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,0.0f,0.0f,		0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,1.0f,0.0f,		 0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,1.0f,1.0f, // 바닥
-0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,1.0f,1.0f,	  	 -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,0.0f,1.0f,			-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,0.0f,0.0f,
-
--0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,0.0f,1.0f,		 0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,1.0f,1.0f,	   0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,1.0f,0.0f,// 위
-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,	1.0f,0.0f,		 -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,0.0f,0.0f,		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,0.0f,1.0f
-};
 
 void make_vertexShaders();
 void make_fragmentShaders();
@@ -117,111 +97,82 @@ char* filetobuf(const char* file)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, widthImage, heightImage, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // 알파값 있는 사진
 */
 
-unsigned int texture[6];
-int widthImage, heightImage, numberOfChannel;
-void InitTexture()
-{
-	glGenTextures(6, texture);
 
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, widthImage, heightImage, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	int tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, widthImage, heightImage, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, texture[3]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, texture[4]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-
-	glBindTexture(GL_TEXTURE_2D, texture[5]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("spider.png", &widthImage, &heightImage, &numberOfChannel, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	tLocation = glGetUniformLocation(shaderProgramID, "texture1");
-	glUniform1i(tLocation, 0);
-	stbi_image_free(data);
-}
-
-void ReadObj()
+void Init()
 {
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); //--- 위치 속성
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); //--- 노말 속성
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); //--- 텍스처 좌표 속성
-	glEnableVertexAttribArray(2);
+	if (LoadOBJ("cube.obj", &cube))
+	{
+		glGenVertexArrays(1, &cube.Vao);
+		glGenBuffers(1, &cube.Vbo_p);
+		glGenBuffers(1, &cube.Vbo_n);
+		glGenBuffers(1, &cube.Vbo_vt);
+		glBindVertexArray(cube.Vao);
+
+		// 버텍스 데이터 전달
+		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_p);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * cube.vertices.size(), cube.vertices.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //--- 위치 속성
+		glEnableVertexAttribArray(0);
+
+		// 노멀 데이터 전달
+		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_n);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Normal) * cube.normals.size(), cube.normals.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //--- 노말 속성
+		glEnableVertexAttribArray(1);
 
 
-	glUseProgram(shaderProgramID);
+		// 텍스처 좌표 속성
+		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_vt);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(TexCoord) * cube.texCoords.size(), cube.texCoords.data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0); //--- 텍스처 좌표 속성
+		glEnableVertexAttribArray(2);
+	}
 }
 
-
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f); // 카메라 위치
+glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, -1.0f);      // 초기 카메라 바라보는 방향
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 void drawScene()
 {
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glUseProgram(shaderProgramID);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
 	int lightColorLocation = glGetUniformLocation(shaderProgramID, "lightColor"); //--- lightColor 값 전달: (1.0, 1.0, 1.0) 백색
 	int objColorLocation = glGetUniformLocation(shaderProgramID, "objectColor"); //--- object Color값 전달: (1.0, 0.5, 0.3)의 색
 	int objviewLocation = glGetUniformLocation(shaderProgramID, "viewPos");
+	int ambientLightLocation = glGetUniformLocation(shaderProgramID, "ambientLight");
+	glUniform3f(ambientLightLocation, 1.0, 1.0, 1.0);
+
+
+	unsigned int viewLocation = glGetUniformLocation(shaderProgramID, "view"); //--- 뷰잉 변환 설정
+	unsigned int Model_Transform = glGetUniformLocation(shaderProgramID, "model"); // 안 움직이는 부분
+
+
+	glm::mat4 view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
+
+
+	glm::mat4 projection = glm::mat4(1.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)600 / (float)600, 0.1f, 200.0f);
+	unsigned int projectionLocation = glGetUniformLocation(shaderProgramID, "projection");
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
+
+
+	glm::mat4 transfrom = glm::mat4(1.0f);
+	glUniformMatrix4fv(Model_Transform, 1, GL_FALSE, glm::value_ptr(transfrom));
+
+
+
+
+	glBindVertexArray(cube.Vao);
+	glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	glutSwapBuffers();
 }
@@ -265,7 +216,7 @@ int main(int argc, char** argv)
 	else
 		std::cout << "GLEW Initialized\n";
 
-	InitTexture();
+	Init();
 	make_vertexShaders();
 	make_fragmentShaders();
 	make_shaderProgram();

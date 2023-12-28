@@ -1,5 +1,1 @@
-﻿  main.cpp
-C:\Users\82108\source\repos\Wire_P\Wire_P\main.cpp(202,24): error C2065: 'VAO': 선언되지 않은 식별자입니다.
-C:\Users\82108\source\repos\Wire_P\Wire_P\main.cpp(203,19): error C2065: 'VBO': 선언되지 않은 식별자입니다.
-C:\Users\82108\source\repos\Wire_P\Wire_P\main.cpp(204,20): error C2065: 'VAO': 선언되지 않은 식별자입니다.
-C:\Users\82108\source\repos\Wire_P\Wire_P\main.cpp(205,32): error C2065: 'VBO': 선언되지 않은 식별자입니다.
+﻿  Wire_P.vcxproj -> D:\Wire\Wire_P\Wire_P\x64\Debug\Wire_P.exe
