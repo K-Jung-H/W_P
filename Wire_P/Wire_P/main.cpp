@@ -8,7 +8,7 @@
 
 #define PI 3.141592
 
-
+static float R_angles = 0;
 
 void make_vertexShaders();
 void make_fragmentShaders();
@@ -103,30 +103,30 @@ void Init()
 
 	if (LoadOBJ("cube.obj", &cube))
 	{
-		glGenVertexArrays(1, &cube.Vao);
-		glGenBuffers(1, &cube.Vbo_p);
-		glGenBuffers(1, &cube.Vbo_n);
-		glGenBuffers(1, &cube.Vbo_vt);
-		glBindVertexArray(cube.Vao);
+		// VAO 설정
+		glGenVertexArrays(1, &cube.VAO);
+		glBindVertexArray(cube.VAO);
 
-		// 버텍스 데이터 전달
-		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_p);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * cube.vertices.size(), cube.vertices.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //--- 위치 속성
+		glGenBuffers(1, &cube.VBO);
+
+
+		glBindBuffer(GL_ARRAY_BUFFER, cube.VBO); //하나의 버퍼에 모든 데이터 저장
+		glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * cube.vertexData.size(), cube.vertexData.data(), GL_STATIC_DRAW);
+
+		// 버텍스 속성 설정 -> 어떻게 저장 되어있는지
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, vertex));
 		glEnableVertexAttribArray(0);
 
-		// 노멀 데이터 전달
-		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_n);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Normal) * cube.normals.size(), cube.normals.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //--- 노말 속성
+		// 노멀 속성 설정 -> 어떻게 저장 되어있는지
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
 		glEnableVertexAttribArray(1);
 
-
-		// 텍스처 좌표 속성
-		glBindBuffer(GL_ARRAY_BUFFER, cube.Vbo_vt);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(TexCoord) * cube.texCoords.size(), cube.texCoords.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0); //--- 텍스처 좌표 속성
+		// 텍스처 좌표 속성 -> 어떻게 저장 되어있는지
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
 		glEnableVertexAttribArray(2);
+
+		// VAO 언바인드
+		glBindVertexArray(0);
 	}
 }
 
@@ -139,15 +139,19 @@ void drawScene()
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glUseProgram(shaderProgramID);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	int lightPosLocation = glGetUniformLocation(shaderProgramID, "lightPos");
+	glUniform3f(lightPosLocation, 0.0f, 0.0f, 0.0f);
 	int lightColorLocation = glGetUniformLocation(shaderProgramID, "lightColor"); //--- lightColor 값 전달: (1.0, 1.0, 1.0) 백색
+	glUniform3f(lightColorLocation, 1.0f, 1.0f, 1.0f);
+
 	int objColorLocation = glGetUniformLocation(shaderProgramID, "objectColor"); //--- object Color값 전달: (1.0, 0.5, 0.3)의 색
-	int objviewLocation = glGetUniformLocation(shaderProgramID, "viewPos");
+	//int objviewLocation = glGetUniformLocation(shaderProgramID, "viewPos");
 	int ambientLightLocation = glGetUniformLocation(shaderProgramID, "ambientLight");
-	glUniform3f(ambientLightLocation, 1.0, 1.0, 1.0);
+	glUniform3f(ambientLightLocation, 1.0f, 1.0f, 1.0f);
 
 
 	unsigned int viewLocation = glGetUniformLocation(shaderProgramID, "view"); //--- 뷰잉 변환 설정
@@ -165,14 +169,17 @@ void drawScene()
 
 
 	glm::mat4 transfrom = glm::mat4(1.0f);
+	transfrom = glm::rotate(transfrom, glm::radians(R_angles), glm::vec3(0.0, 1.0, 0.0));
 	glUniformMatrix4fv(Model_Transform, 1, GL_FALSE, glm::value_ptr(transfrom));
 
 
 
 
-	glBindVertexArray(cube.Vao);
-	glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(cube.VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube.EBO);
+	glDrawElements(GL_TRIANGLES, cube.vertexData.size(), GL_UNSIGNED_INT, 0);
+//	glDrawArrays(GL_TRIANGLES, 0, cube.vertexData.size());
+	glBindVertexArray(0);
 
 	glutSwapBuffers();
 }
@@ -184,14 +191,20 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	{
 
 	case 'w':
+		cameraPos.z += 0.5f;
 		break;
 	case 'a':
+		R_angles += 0.5f;
 		break;
 	case 's':
+		cameraPos.z -= 0.5f;
 		break;
 	case 'd':
+		Check_Data(cube);
 		break;
-
+	case 'q':
+		exit(1);
+		break;
 	default:
 		break;
 	}
@@ -205,7 +218,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(1000, 600);
-	glutCreateWindow("Example14");
+	glutCreateWindow("Wire_plz");
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
