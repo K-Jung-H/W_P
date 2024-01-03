@@ -1,6 +1,5 @@
 #include "object.h"
-#include <iomanip>
-Cube cube;
+
 
 bool LoadOBJ(const std::string& filename, Cube* c) {
     std::ifstream file(filename);
@@ -61,52 +60,73 @@ bool LoadOBJ(const std::string& filename, Cube* c) {
     std::vector<VertexData> vertexData;
 
     // 각 정보를 하나의 데이터로 합치기
-    for (const Face& face : faces) {
-        for (int i = 0; i < 3; ++i) {
+    for (const Face& face : faces) 
+    {
+        for (int i = 0; i < 3; ++i) 
+        {
             VertexData vertexDataItem;
             vertexDataItem.vertex = vertices[face.vertexIndex[i] - 1];
-            if (!normals.empty()) {
+
+            if (!normals.empty()) 
+            {
                 vertexDataItem.normal = normals[face.normalIndex[i] - 1];
             }
-            if (!texCoords.empty()) {
+            if (!texCoords.empty()) 
+            {
                 vertexDataItem.texCoord = texCoords[face.texCoordIndex[i] - 1];
             }
             vertexData.push_back(vertexDataItem);
         }
     }
     c->vertexData = vertexData;
-
-
-
-    // 각 face의 정점 인덱스를 EBO에 추가
-    for (const Face& face : faces) {
-        for (int i = 0; i < 3; ++i) {
-            indices.push_back(face.vertexIndex[i] - 1);
-        }
-    }
-
-    // EBO 생성 및 데이터 전송
-    glGenBuffers(1, &c->EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
-
-
-
-    //// VBO에 모든 데이터 저장
-    //glBindBuffer(GL_ARRAY_BUFFER, c->VBO);
-    //glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(VertexData), vertexData.data(), GL_STATIC_DRAW);
-
+    c->faces = faces;
+    c->N = vertexData.size();
+    std::cout << c->N << std::endl;
     return true;
 }
 
+void BuildOBJ(const std::string& filename, Cube* c)
+{
+    if (LoadOBJ(filename, c))
+    {
+        // VAO 설정
+        glGenVertexArrays(1, &c->VAO);
+        glBindVertexArray(c->VAO);
 
+        glGenBuffers(1, &c->VBO);
+
+
+        glBindBuffer(GL_ARRAY_BUFFER, c->VBO); //하나의 버퍼에 모든 데이터 저장
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * c->vertexData.size(), c->vertexData.data(), GL_STATIC_DRAW);
+
+        // 버텍스 속성 설정 -> 어떻게 저장 되어있는지
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, vertex));
+        glEnableVertexAttribArray(0);
+
+        // 노멀 속성 설정 -> 어떻게 저장 되어있는지
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
+        glEnableVertexAttribArray(1);
+
+        // 텍스처 좌표 속성 -> 어떻게 저장 되어있는지
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
+        glEnableVertexAttribArray(2);
+
+        // VAO 언바인드
+        glBindVertexArray(0);
+    }
+    else
+    {
+        std::cout << "fail: " << filename << std::endl;
+        exit(1);
+    }
+}
 
 void Check_Data(const Cube C)
 {
     std::cout << "Vertex Data:" << std::endl;
-    for (size_t i = 0; i < cube.vertexData.size(); ++i)
+    for (size_t i = 0; i < C.vertexData.size(); ++i)
     {
-        const VertexData& vertexData = cube.vertexData[i];
+        const VertexData& vertexData = C.vertexData[i];
         std::cout <<'[' << i << "]: "
             << "x: " << std::setw(9) << vertexData.vertex.x
             << ", y: " << std::setw(9) << vertexData.vertex.y

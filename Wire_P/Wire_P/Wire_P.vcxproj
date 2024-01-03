@@ -131,12 +131,14 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="spider.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="object.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <iomanip>
 struct Vertex 
 {
     float x, y, z;
@@ -39,14 +40,13 @@ struct Face
 
 struct Cube
 {
+    int N;
     GLuint VAO;
     GLuint VBO;
-    GLuint EBO;
-
+    std::vector<Face> faces;
     std::vector<VertexData> vertexData;
 };
 
 bool LoadOBJ(const std::string& filename, Cube* c);
 void Check_Data(const Cube C);
-
-extern Cube cube;
+void BuildOBJ(const std::string& filename, Cube* c);
