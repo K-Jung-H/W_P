@@ -1,4 +1,6 @@
 #include "object.h"
+#include "stb_image.h"
+#include "shader.h"
 
 
 bool LoadOBJ(const std::string& filename, Object* c) {
@@ -112,7 +114,50 @@ void BuildOBJ(const std::string& filename, Object* c)
         glEnableVertexAttribArray(2);
 
         // VAO ¾ð¹ÙÀÎµå
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
+
+        //=========================================================================
+
+        int widthImage, heightImage, numberOfChannel;
+        glGenTextures(3, c->texture);
+
+        glBindTexture(GL_TEXTURE_2D, c->texture[0]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* data = stbi_load("resource/Body.png", &widthImage, &heightImage, &numberOfChannel, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        int tLocation = glGetUniformLocation(shaderProgramID, "texture1");
+        glUniform1i(tLocation, 0);
+        stbi_image_free(data);
+
+
+        glBindTexture(GL_TEXTURE_2D, c->texture[1]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        stbi_set_flip_vertically_on_load(true);
+        data = stbi_load("resource/Eye.png", &widthImage, &heightImage, &numberOfChannel, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        tLocation = glGetUniformLocation(shaderProgramID, "texture1");
+        glUniform1i(tLocation, 0);
+        stbi_image_free(data);
+
+        glBindTexture(GL_TEXTURE_2D, c->texture[2]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        stbi_set_flip_vertically_on_load(true);
+        data = stbi_load("resource/Mouth.png", &widthImage, &heightImage, &numberOfChannel, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        tLocation = glGetUniformLocation(shaderProgramID, "texture1");
+        glUniform1i(tLocation, 0);
+        stbi_image_free(data);
+
     }
     else
     {
@@ -147,17 +192,37 @@ void DrawOBJ(const Object c, unsigned int Model_Transform, int objColorLocation,
     transfrom = glm::rotate(transfrom, glm::radians(c.X_angle), glm::vec3(1.0, 0.0, 0.0));
     transfrom = glm::rotate(transfrom, glm::radians(c.Y_angle), glm::vec3(0.0, 1.0, 0.0));
     transfrom = glm::rotate(transfrom, glm::radians(c.Z_angle), glm::vec3(0.0, 0.0, 1.0));
+    transfrom = glm::scale(transfrom, glm::vec3(0.1, 0.1, 0.1));
     glUniformMatrix4fv(Model_Transform, 1, GL_FALSE, glm::value_ptr(transfrom));
-    glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
+    glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 
-
+    //8694; //8538
 
     glBindVertexArray(c.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, c.vertexData.size());
+    glDrawArrays(GL_TRIANGLES, c.temp, 12792 - c.temp);
+    std::cout << c.temp << std::endl;
+    
+    glBindTexture(GL_TEXTURE_2D, c.texture[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 8538);
+
+    glBindTexture(GL_TEXTURE_2D, c.texture[1]); // ´«
+    glDrawArrays(GL_TRIANGLES, 8538, 54);
+
+    glBindTexture(GL_TEXTURE_2D, c.texture[2]); // ÀÔ
+    glDrawArrays(GL_TRIANGLES, 8592, 48);
+
+    glBindTexture(GL_TEXTURE_2D, c.texture[1]); // ´«
+    glDrawArrays(GL_TRIANGLES, 8640, 54);
+
+    glBindTexture(GL_TEXTURE_2D, c.texture[0]);
+    glDrawArrays(GL_TRIANGLES, 8694, c.vertexData.size() - 8694);
+
+
+
+
+    //glDrawArrays(GL_TRIANGLES, 0, c.vertexData.size());
     glBindVertexArray(0);
 }
-
-
 
 
 

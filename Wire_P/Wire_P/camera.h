@@ -9,10 +9,13 @@
 
 struct Camera
 {
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.0f); // 카메라 위치
-	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, -1.0f); // 초기 카메라 바라보는 방향
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
+	glm::vec3 Pos = glm::vec3(0.0f, 0.0f, 0.0f); // 카메라 위치
+	glm::vec3 Direction = glm::vec3(0.0f, 0.0f, 1.0f); // 초기 카메라 바라보는 방향
+	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 
 };
+
+
+void action_camera(Camera& c, unsigned char key);
+void setting_camera(Camera c, int viewLocation);

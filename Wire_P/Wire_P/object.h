@@ -48,10 +48,11 @@ struct Object
 
     glm::vec3 pos = { 0.0, 0.0, 0.0 };
     float X_angle = 0;
-    float Y_angle = 0;
+    float Y_angle = 180;
     float Z_angle = 0;
 
-
+    unsigned int texture[5];
+    int temp = 8694; //8538
 };
 
 bool LoadOBJ(const std::string& filename, Object* c);

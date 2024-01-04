@@ -3,11 +3,15 @@ in vec3 FragPos; //--- 노멀값을 계산하기 위해 객체의 위치값을 버텍스 세이더에서 
 in vec3 Normal;
 in vec2 TexCoord;
 out vec4 FragColor;
+
 uniform vec3 lightPos; //--- 조명의 위치
 uniform vec3 lightColor; //--- 조명의 색
 uniform vec3 objectColor;
 uniform vec3 viewPos;
+
 uniform sampler2D texture1;
+uniform sampler2D texture2;
+
 void main()
 {
 	vec3 ambientLight = vec3(0.3); //--- 주변 조명 세기
@@ -28,4 +32,6 @@ void main()
 
 	FragColor = vec4 (result, 1.0f);
 	//FragColor = texture(texture1, TexCoord) * FragColor;
+	//FragColor = ((texture(texture1, TexCoord) + texture(texture2, TexCoord)) /2.0) * FragColor;
+	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
 }
