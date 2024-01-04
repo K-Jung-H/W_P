@@ -38,15 +38,23 @@ struct Face
     int texCoordIndex[3];
 };
 
-struct Cube
+struct Object
 {
-    int N;
+    int N; //vertex num
     GLuint VAO;
     GLuint VBO;
     std::vector<Face> faces;
     std::vector<VertexData> vertexData;
+
+    glm::vec3 pos = { 0.0, 0.0, 0.0 };
+    float X_angle = 0;
+    float Y_angle = 0;
+    float Z_angle = 0;
+
+
 };
 
-bool LoadOBJ(const std::string& filename, Cube* c);
-void Check_Data(const Cube C);
-void BuildOBJ(const std::string& filename, Cube* c);
+bool LoadOBJ(const std::string& filename, Object* c);
+void Check_Data(const Object C);
+void BuildOBJ(const std::string& filename, Object* c);
+void DrawOBJ(const Object c, unsigned int Model_Transform, int objColorLocation, glm::mat4 transfrom);

@@ -14,8 +14,8 @@ static float Y_angles = 0;
 static float Z_angles = 0;
 static bool CW = false;
 
-Cube cube;
-Cube emolga;
+Object cube;
+Object emolga;
 void Init()
 {
 	//Emolga
@@ -55,8 +55,8 @@ void drawScene()
 	glUniform3f(ambientLightLocation, 1.0f, 1.0f, 1.0f);
 	
 
-	unsigned int viewLocation = glGetUniformLocation(shaderProgramID, "view"); //--- 뷰잉 변환 설정
-	unsigned int Model_Transform = glGetUniformLocation(shaderProgramID, "model"); // 안 움직이는 부분
+	 int viewLocation = glGetUniformLocation(shaderProgramID, "view"); //--- 뷰잉 변환 설정
+	 int Model_Transform = glGetUniformLocation(shaderProgramID, "model"); // 안 움직이는 부분
 
 
 	glm::mat4 view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
@@ -64,31 +64,16 @@ void drawScene()
 
 
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), (float)600 / (float)600, 0.1f, 200.0f);
-	unsigned int projectionLocation = glGetUniformLocation(shaderProgramID, "projection");
+	projection = glm::perspective(glm::radians(45.0f), (float)1 / (float)1, 0.1f, 200.0f);
+	int projectionLocation = glGetUniformLocation(shaderProgramID, "projection");
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
 
 
 	glm::mat4 transfrom = glm::mat4(1.0f);
-	transfrom = glm::rotate(transfrom, glm::radians(X_angles), glm::vec3(1.0, 0.0, 0.0));
-	transfrom = glm::rotate(transfrom, glm::radians(Z_angles), glm::vec3(0.0, 1.0, 0.0));
-	transfrom = glm::rotate(transfrom, glm::radians(Y_angles), glm::vec3(0.0, 0.0, 1.0));
-	glUniformMatrix4fv(Model_Transform, 1, GL_FALSE, glm::value_ptr(transfrom));
 
+	DrawOBJ(emolga, Model_Transform, objColorLocation, transfrom);
+	DrawOBJ(cube, Model_Transform, objColorLocation, transfrom);
 
-	glUniform3f(objColorLocation, 0.0f, 0.0f, 1.0f);
-
-
-
-	glBindVertexArray(cube.VAO);
-	glDrawArrays(GL_TRIANGLES, 0, cube.vertexData.size());
-	glBindVertexArray(0);
-
-	glUniform3f(objColorLocation, 0.0f, 1.0f, 1.0f);
-	glBindVertexArray(emolga.VAO);
-	glDrawArrays(GL_TRIANGLES, 0, emolga.vertexData.size());
-	glBindVertexArray(0);
-	
 	glutSwapBuffers();
 }
 
@@ -98,13 +83,13 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case '1':
-		X_angles += 2.5f;
+		emolga.X_angle += 2.5f;
 		break;
 	case '2':
-		Y_angles += 2.5f;
+		emolga.Y_angle += 2.5f;
 		break;
 	case '3':
-		Z_angles += 2.5f;
+		emolga.Z_angle += 2.5f;
 		break;
 
 	case 'w':

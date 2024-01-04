@@ -1,7 +1,7 @@
 #include "object.h"
 
 
-bool LoadOBJ(const std::string& filename, Cube* c) {
+bool LoadOBJ(const std::string& filename, Object* c) {
     std::ifstream file(filename);
 
     if (!file.is_open()) {
@@ -85,7 +85,7 @@ bool LoadOBJ(const std::string& filename, Cube* c) {
     return true;
 }
 
-void BuildOBJ(const std::string& filename, Cube* c)
+void BuildOBJ(const std::string& filename, Object* c)
 {
     if (LoadOBJ(filename, c))
     {
@@ -121,7 +121,7 @@ void BuildOBJ(const std::string& filename, Cube* c)
     }
 }
 
-void Check_Data(const Cube C)
+void Check_Data(const Object C)
 {
     std::cout << "Vertex Data:" << std::endl;
     for (size_t i = 0; i < C.vertexData.size(); ++i)
@@ -140,3 +140,24 @@ void Check_Data(const Cube C)
     }
     
 }
+
+void DrawOBJ(const Object c, unsigned int Model_Transform, int objColorLocation, glm::mat4 transfrom)
+{
+    
+    transfrom = glm::rotate(transfrom, glm::radians(c.X_angle), glm::vec3(1.0, 0.0, 0.0));
+    transfrom = glm::rotate(transfrom, glm::radians(c.Y_angle), glm::vec3(0.0, 1.0, 0.0));
+    transfrom = glm::rotate(transfrom, glm::radians(c.Z_angle), glm::vec3(0.0, 0.0, 1.0));
+    glUniformMatrix4fv(Model_Transform, 1, GL_FALSE, glm::value_ptr(transfrom));
+    glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
+
+
+
+    glBindVertexArray(c.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, c.vertexData.size());
+    glBindVertexArray(0);
+}
+
+
+
+
+
