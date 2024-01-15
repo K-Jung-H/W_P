@@ -5,17 +5,29 @@
 #include <gl/glm/glm.hpp>
 #include <gl/glm/ext.hpp>
 #include <gl/glm/gtc/matrix_transform.hpp>
+#include <iostream>
+#include <algorithm>
+#include "player.h"
+#define windowWidth 1000
+#define windowHeight 600
+ 
+class Player;
 
-
-struct Camera
+class Camera
 {
-	glm::vec3 Pos = glm::vec3(0.0f, 0.0f, 0.0f); // 카메라 위치
-	glm::vec3 Direction = glm::vec3(0.0f, 0.0f, 1.0f); // 초기 카메라 바라보는 방향
-	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+public:
+	
+	glm::vec3 Pos;
+	glm::vec3 Direction;
+	glm::vec3 Up;
+	float Distance;
+
+	Camera();
 
 
+	void Apply(int viewLocation);
+	void update(Player, bool);
+	void update_pos(Player, bool);
+	void update_dir(Player, bool);
+	void zoom(char);
 };
-
-
-void action_camera(Camera& c, unsigned char key);
-void setting_camera(Camera c, int viewLocation);

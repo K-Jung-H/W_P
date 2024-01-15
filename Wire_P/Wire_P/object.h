@@ -10,6 +10,9 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include "player.h"
+
+
 struct Vertex 
 {
     float x, y, z;
@@ -38,8 +41,11 @@ struct Face
     int texCoordIndex[3];
 };
 
-struct Object
+class Object
 {
+
+
+public:
     int N; //vertex num
     GLuint VAO;
     GLuint VBO;
@@ -49,13 +55,31 @@ struct Object
     glm::vec3 pos = { 0.0, 0.0, 0.0 };
     float X_angle = 0;
     float Y_angle = 180;
-    float Z_angle = 0;
+    float Z_angle = 0; 
 
-    unsigned int texture[5];
-    int temp = 8694; //8538
+    virtual bool LoadOBJ(const std::string& filename);
+    void Build(const std::string& filename);
+
+    virtual void LoadTexture();
+    virtual void Draw(unsigned int Model_Transform, int objColorLocation, Player player);
+    virtual void Draw(unsigned int Model_Transform, int objColorLocation, Camera player);
+
 };
 
-bool LoadOBJ(const std::string& filename, Object* c);
-void Check_Data(const Object C);
-void BuildOBJ(const std::string& filename, Object* c);
-void DrawOBJ(const Object c, unsigned int Model_Transform, int objColorLocation, glm::mat4 transfrom);
+class Emolga : public Object
+{
+public:
+    unsigned int texture[5];
+
+    void LoadTexture() override;
+    void Draw(unsigned int Model_Transform, int objColorLocation, Player player)  override;
+
+};
+
+class Background : public Object
+{
+public:
+    unsigned int texture[2];
+    void LoadTexture() override;
+    void Draw(unsigned int Model_Transform, int objColorLocation, Player player)  override;
+};

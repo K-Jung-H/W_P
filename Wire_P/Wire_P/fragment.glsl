@@ -9,8 +9,10 @@ uniform vec3 lightColor; //--- 조명의 색
 uniform vec3 objectColor;
 uniform vec3 viewPos;
 
+uniform bool Use_Texture_Mode;
+
+
 uniform sampler2D texture1;
-uniform sampler2D texture2;
 
 void main()
 {
@@ -31,7 +33,7 @@ void main()
 	vec3 result = (ambient + diffuse + specular) * objectColor; //--- 최종 조명 설정된 픽셀 색상: (주변+산란반사+거울반사조명)*객체 색상
 
 	FragColor = vec4 (result, 1.0f);
-	//FragColor = texture(texture1, TexCoord) * FragColor;
-	//FragColor = ((texture(texture1, TexCoord) + texture(texture2, TexCoord)) /2.0) * FragColor;
-	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
+	if(Use_Texture_Mode)
+		FragColor = texture(texture1, TexCoord) * FragColor;
+
 }
